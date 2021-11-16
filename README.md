@@ -11,3 +11,5 @@ update env
 connect db
 
 php artisan migrate
+
+<a href="./auth.json" download>Click to download dump</a>

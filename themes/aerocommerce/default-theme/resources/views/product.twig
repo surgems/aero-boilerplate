@@ -1,0 +1,187 @@
+{% layout "main" %}
+
+{% set variables = {
+    product: product,
+    summary: product.summary,
+    description: product.description,
+} %}
+
+<div class="flex flex-col w-full max-w-3xl mx-auto p-4 pb-8">
+    {% component "product" with variables %}
+        <div class="flex flex-wrap flex-col lg:flex-row w-full">
+            <div class="w-full lg:w-1/2 lg:pr-4">
+                <div class="relative">
+                    <div class="bg-white rounded-lg shadow-lg lg:shadow-none overflow-hidden rounded-fix mb-4 border border-grey-light">
+                        <img src="{{ theme_asset("no-image.svg") }}" alt="" class="w-full block opacity-0">
+                    </div>
+                    <div class="pin-t w-full absolute rounded-lg whitespace-no-wrap overflow-hidden rounded-fix mb-4 border border-transparent">
+                        <div v-if="image">
+                            <picture>
+                                <source :srcset="'{{ image_factory(600, 800) }}/' + image.file + '.webp 1x,{{ image_factory(600, 800).retina() }}/' + image.file + '.webp 2x'"
+                                        type="image/webp">
+                                <img :src="'{{ image_factory(600, 800) }}/' + image.file"
+                                     :srcset="'{{ image_factory(600, 800).retina() }}/' + image.file + ' 2x'"
+                                     :alt="image.alt || product.name"
+                                     :key="image.file"
+                                     class="w-full block">
+                            </picture>
+                        </div>
+                        <div v-else>
+                            <img src="{{ theme_asset("no-image.svg") }}" alt="" class="w-full block">
+                        </div>
+                        <div v-show="!loaded" class="product__images__loading"></div>
+                    </div>
+                    <div v-if="images.length > 1" class="mb-4 relative rounded-lg w-full shadow-lg lg:shadow-none overflow-hidden p-1 pr-3 bg-white border border-grey-light">
+                        <div v-for="(image, index) in images" :key="image.id" @click="selectImage(index)"
+                             class="w-16 inline-block cursor-pointer rounded rounded-fix overflow-hidden mt-1 ml-1">
+                            <picture>
+                                <source :srcset="'{{ image_factory(60, 80) }}/' + image.file + '.webp 1x,{{ image_factory(60, 80).retina() }}/' + image.file + '.webp 2x'"
+                                        type="image/webp">
+                                <img :src="'{{ image_factory(60, 80) }}/' + image.file"
+                                     :srcset="'{{ image_factory(60, 80).retina() }}/' + image.file + ' 2x'"
+                                     :alt="image.alt || product.name"
+                                     class="w-full block">
+                            </picture>
+                        </div>
+                        <div v-show="!loaded" class="product__images__loading"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/2">
+                <div class="relative rounded-lg shadow-lg lg:shadow-none w-full mt-2 lg:mt-0 overflow-hidden p-5 bg-white border border-grey-light">
+                    {% if product.manufacturer %}
+                        <div class="mb-1 text-grey-darker text-sm">{{ product.manufacturer.name }}</div>
+                    {% endif %}
+                    <h1 class="text-xl mt-2 mb-3 text-primary leading-normal">{{ product.heading }}</h1>
+                    <div v-if="summary" class="mb-3 text-grey-darker leading-normal" v-html="summary"></div>
+                    <div v-if="variant && variant.preorder_message" v-text="variant.preorder_message"></div>
+                    <div class="border-grey-light border-t mt-4 pt-5 lg:pt-2">
+                        <div class="lg:mt-2" v-if="has_attributes">
+                            <div v-for="(attribute_group, attribute_group_id) in available_attributes" :key="attribute_group_id">
+                                <div class="font-semibold"
+                                     :class="{ 'text-red': attempted_to_buy && unselected_attributes.hasOwnProperty(attribute_group_id) }"
+                                     v-text="attribute_group.name"></div>
+                                <ul v-if="attribute_group.display_as === 'swatches' || attribute_group.display_as === 'color_swatches' || attribute_group.display_as === 'image_swatches'"
+                                    class="list-reset mt-1 mb-2 pr-2 flex align-top">
+                                    <li v-for="attribute in attribute_group.attributes"
+                                        class="mb-2 mr-2 inline-block border border-primary rounded overflow-hidden rounded-fix transition-fast"
+                                        :class="{
+                                            'opacity-50': attribute.disabled,
+                                            'hover:border-primary-dark': !attribute.disabled && !attribute.selected,
+                                            'bg-primary': attribute.selected
+                                        }">
+                                        <a v-if="attribute_group.display_as === 'color_swatches'"
+                                           href=""
+                                           class="flex no-underline py-2 px-3 text-primary min-w-10 min-h-10 items-center m-px border rounded transition-fast"
+                                           :class="{
+                                             'cursor-default': attribute.disabled,
+                                             'border-white': !attribute.selected,
+                                             'border-primary': attribute.selected,
+                                             'sold-out': !attribute.has_stock
+                                            }"
+                                           :style="{ backgroundColor: attribute.display_name }"
+                                           :title="attribute.name"
+                                           @click.prevent="selectAttribute(attribute_group_id, attribute.id)"></a>
+                                        <a v-else-if="attribute_group.display_as === 'image_swatches'"
+                                           href=""
+                                           class="flex no-underline text-primary min-w-10 min-h-10 items-center m-px border rounded transition-fast"
+                                           :class="{
+                                             'cursor-default': attribute.disabled,
+                                             'border-white': !attribute.selected,
+                                             'border-primary': attribute.selected,
+                                             'sold-out': !attribute.has_stock
+                                            }"
+                                           :style="{ backgroundImage: attribute.image ? 'url({{ image_factory(44, 44) }}/' + attribute.image.file + ')' : null }"
+                                           :title="attribute.name"
+                                           @click.prevent="selectAttribute(attribute_group_id, attribute.id)"></a>
+                                        <a v-else
+                                           href=""
+                                           class="flex no-underline py-2 px-3 text-primary min-w-10 min-h-10 items-center justify-center transition-fast text-center"
+                                           :class="{
+                                              'cursor-default': attribute.disabled,
+                                              'text-white': attribute.selected,
+                                              'hover:text-primary-dark': !attribute.disabled && !attribute.selected,
+                                              'sold-out': !attribute.has_stock
+                                            }"
+                                           :title="attribute.name"
+                                           @click.prevent="selectAttribute(attribute_group_id, attribute.id)" v-text="attribute.display_name || attribute.name"></a>
+                                    </li>
+                                </ul>
+                                <select v-else
+                                        :aria-label="'Select ' + attribute_group.name"
+                                        @change="selectAttribute(attribute_group_id, $event)"
+                                        class="mt-1 mb-3 text-md h-10 w-full lg:w-auto min-w-1/2 border border-primary bg-white rounded"
+                                        :class="{ 'opacity-50': !attribute_group.selectable }"
+                                        :disabled="!attribute_group.selectable">
+                                    <option value="">Select {{ "{{ attribute_group.name }}" }}</option>
+                                    <option v-for="attribute in attribute_group.attributes"
+                                            :value="attribute.id"
+                                            :selected="attribute.selected"
+                                            :disabled="attribute.disabled">{{ "{{ (attribute.display_name || attribute.name) + (!attribute.has_stock ? ' &nbsp;&ndash;&nbsp; Out of Stock' : '') }}" }}</option>
+                                </select>
+                                <div v-if="attempted_to_buy && unselected_attributes.hasOwnProperty(attribute_group_id)" class="mb-4">
+                                    <span class="text-red" v-text="'Please select a ' + unselected_attributes[attribute_group_id].name"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap">
+                        <div v-if="has_price" class="flex flex-col justify-center pr-6 lg:pt-3 lg:w-1/2">
+                            <span class="font-semibold" :class="{ 'text-red': is_reduced }"><span v-if="is_reduced && is_ranged">Now from </span><span v-else-if="is_reduced">Now </span><span v-else-if="is_ranged">From </span> <span class="text-xl">{{ "{{ sale_price.inc }}" }}</span></span>
+                            <span v-if="is_reduced" class="text-sm"><span class="line-through">{{ "{{ price.inc }}" }}</span> <span class="text-red"> Save {{ "{{ saving_price.inc }}" }}</span></span>
+                            <span v-else-if="not_retail" class="text-sm">RRP <span>{{ "{{ retail_price.inc }}" }}</span></span>
+                        </div>
+                        <div class="w-full lg:w-1/2 mt-6 lg:mt-0 lg:pt-3">
+                            <a v-if="has_stock"
+                               href=""
+                               @click.prevent="addToCart"
+                               class="inline-block w-full no-underline text-center border-2 border-primary text-primary font-bold py-4 px-8 rounded-full outline-none transition-fast"
+                               :class="{ 'cursor-default': !can_buy, 'bg-primary text-white hover:border-primary-dark hover:bg-primary-dark cursor-pointer': can_buy }">
+                                <svg class="fill-white w-5 h-4 align-text-bottom mr-2"
+                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                    <path fill="currentColor"
+                                          d="M551.991 64H144.28l-8.726-44.608C133.35 8.128 123.478 0 112 0H12C5.373 0 0 5.373 0 12v24c0 6.627 5.373 12 12 12h80.24l69.594 355.701C150.796 415.201 144 430.802 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-18.136-7.556-34.496-19.676-46.142l1.035-4.757c3.254-14.96-8.142-29.101-23.452-29.101H203.76l-9.39-48h312.405c11.29 0 21.054-7.869 23.452-18.902l45.216-208C578.695 78.139 567.299 64 551.991 64zM208 472c-13.234 0-24-10.766-24-24s10.766-24 24-24 24 10.766 24 24-10.766 24-24 24zm256 0c-13.234 0-24-10.766-24-24s10.766-24 24-24 24 10.766 24 24-10.766 24-24 24zm23.438-200H184.98l-31.31-160h368.548l-34.78 160z"></path>
+                                </svg>
+                                <template v-if="!is_available && available_at">Available {{ "{{ available_at }}" }}</template>
+                                <template v-else-if="!is_buyable">Not Available Online</template>
+                                <template v-else>Add to Cart</template>
+                            </a>
+                            <div v-else-if="!has_stock"
+                                 class="block cursor-default text-center bg-white text-primary border-2 border-primary font-bold py-4 px-8 rounded-full outline-none">
+                                Out of Stock
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="added_to_cart"
+                         class="block w-full bg-white border-2 border-green text-green font-bold mt-4 p-3 rounded-lg text-center lg:shadow-md" role="alert">
+                        <span class="block w-full font-bold text-lg">Added to Cart!</span>
+                        <div class="mt-4 flex flex-wrap">
+                            <div class="w-full lg:w-1/2 lg:pr-1">
+                                <a href="{{ route("cart") }}"
+                                   class="inline-block no-underline border-2 border-white text-primary font-bold py-2 px-4 rounded-full outline-none hover:underline hover:text-primary-dark cursor-pointer text-center w-full transition-fast">
+                                    View Cart
+                                </a>
+                            </div>
+                            <div class="w-full lg:w-1/2 mt-2 lg:mt-0 lg:pl-1">
+                                <a href="{{ route("checkout") }}"
+                                   class="inline-block no-underline border-2 border-primary bg-primary text-white font-bold py-2 px-4 rounded-full outline-none hover:border-primary-dark hover:bg-primary-dark cursor-pointer w-full text-center transition-fast">
+                                    Checkout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="has_errors" class="block w-full bg-white border-2 border-red text-red font-bold mt-4 p-3 rounded-lg text-center lg:shadow-md" role="alert">
+                        <ul class="flex flex-wrap pl-6" v-for="errorGroup in errors">
+                            <li v-for="error in errorGroup">
+                                <span>{{ "{{ error }}" }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div v-if="description"
+                     class="relative rounded-lg shadow-lg lg:shadow-none w-full mt-6 lg:mt-4 overflow-hidden p-5 bg-white leading-normal border border-grey-light"
+                     v-html="description"></div>
+            </div>
+        </div>
+    {% endcomponent %}
+</div>

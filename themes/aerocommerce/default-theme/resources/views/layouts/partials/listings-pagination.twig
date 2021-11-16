@@ -1,0 +1,10 @@
+<div class="pagination">
+    <h2><span>Page </span> <span v-text="listings.current_page"></span><span> of </span><span v-text="listings.last_page"></span></span></h2>
+
+    <div v-if="listings.last_page > 1">
+        <div v-for="i in listings.last_page" :key="i">
+            <a :href="'?page=' + i" v-if="listings.current_page == i"><h2 v-text="i" class="active"></h2></a>
+            <a :href="'?page=' + i" v-if="listings.current_page != i"><h2 v-text="i"></h2></a>
+        </div>
+    </div>
+</div>

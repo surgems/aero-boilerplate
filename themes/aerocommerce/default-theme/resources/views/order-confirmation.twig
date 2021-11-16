@@ -1,0 +1,156 @@
+{% layout "main" %}
+
+<div class="flex flex-wrap flex-col w-full max-w-3xl mx-auto p-4 pb-8">
+    {%  include "layouts.partials.message" %}
+    <div class="flex flex-wrap">
+        <div class="w-full {% if verified %}lg:w-3/5 lg:pr-4 {% endif %}leading-normal">
+            <div class="relative rounded-lg shadow-lg lg:shadow-none w-full overflow-hidden p-6 bg-white border border-grey-light text-center">
+                {% if confirmation_snippet %}
+                    {{ confirmation_snippet | raw }}
+                {% else %}
+                    <div class="font-bold pb-4 pt-2">
+                        <svg class="checkmark {% if not first_time_view %}checkmark--no-animate{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"></circle>
+                            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"></path>
+                        </svg> <h1 class="text-xl text-primary leading-normal">Order Successfully Placed</h1>
+                    </div>
+                    <div class="py-2">
+                        <p class="font-bold mt-4">Thank you for shopping with us!</p>
+                        <p class="mt-6">Your order number is <span class="font-bold">#{{ order.reference }}</span></p>
+                        {% if verified %}
+                            <p class="mt-6">We'll send a confirmation email to <span class="font-bold">{{ order.email }}</span></p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            {% if verified and guest_conversion %}
+                <div class="relative rounded-lg shadow-lg lg:shadow-none w-full overflow-hidden p-6 bg-white border border-grey-light mt-6 lg:mt-4">
+                    {% if account_exists %}
+                        <p>The email address you have used already has an account with us. To link this order to your existing account, simply enter your current password.</p>
+                    {% else %}
+                        <p class="mb-2">Enter a password to convert to a full account. Benefits include:</p>
+                        <ul class="text-sm">
+                            <li>Track the status of your order</li>
+                            <li>View your order history</li>
+                            <li>Exclusive offers</li>
+                            <li>Faster checkout for future orders</li>
+                        </ul>
+                    {% endif %}
+                    <form action="{{ route('checkout.guest-convert') }}" class="mt-4 flex flex-wrap" method="post">
+                        {{ csrf_field() }}
+                        <div class="w-full lg:w-1/2">
+                            <label for="password" class="text-primary-dark text-sm font-semibold block pb-2">Password</label>
+                            {% if errors.has('password') %}
+                                <span class="block w-full bg-white border-2 border-red text-red font-bold mb-2 p-3 rounded-lg text-center lg:shadow-md" role="alert">
+                                        <strong>{{ errors.first('password') }}</strong>
+                                    </span>
+                            {% endif %}
+                            <input id="password" type="password" name="password"
+                                   class="border hover:border-grey-dark focus:border-primary focus:border-2 rounded outline-none focus:outline-none p-3 m-px focus:m-0 w-full"
+                                   autocomplete="new-password"
+                                   required>
+                        </div>
+                        <div class="w-full lg:w-1/2 lg:pl-4 mt-4 lg:mt-0 flex justify-end lg:block">
+                            <label class="text-sm pb-2 hidden lg:block">&nbsp;</label>
+                            <button type="submit" class="inline-block border-2 border-primary bg-primary text-white font-bold py-3 px-6 rounded-full outline-none focus:outline-none hover:border-primary-dark hover:bg-primary-dark cursor-pointer transition-fast">
+                                {% if account_exists %}Link Order{% else %}Create an Account{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+        {% if verified %}
+            <div class="w-full lg:w-2/5 mt-6 lg:mt-0">
+                <div class="relative rounded-lg shadow-lg lg:shadow-none w-full overflow-hidden p-6 bg-white border border-grey-light">
+                    <div class="w-full">
+                        <h2 class="text-xl mb-4 text-primary leading-normal flex items-center">Order Summary</h2>
+                    </div>
+                    {% for item in order.items %}
+                        <div class="w-full flex flex-wrap border-t border-grey-light py-4">
+                            <div class="w-16 pr-4 lg:pr-2 flex items-center text-xs">
+                                <div class="relative w-full">
+                                    <span class="cart-count">{{ item.quantity }}</span>
+                                    {% if item.image %}
+                                        <img src="{{ image_factory(108, 144, item.image) }}" alt="{{ item.name }}" class="block w-full rounded">
+                                    {% else %}
+                                        <img src="{{ theme_asset('no-image.svg') }}" alt="{{ item.name }}" class="block w-full rounded">
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flex-1 flex flex-wrap relative lg:items-center">
+                                <div class="w-full lg:w-5/6 py-2 lg:p-4">
+                                    <span class="text-sm lg:text-base">{{ item.name }}</span>
+                                </div>
+                                <div class="w-full lg:w-1/6 text-right flex flex-col justify-end lg:justify-center items-end lg:absolute pin-t pin-r lg:h-full">
+                                    <span class="block whitespace-no-wrap">{{ item.subtotal_price }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if order.shipping_address or order.shipping_method or order.billing_address %}
+                        <div class="w-full border-t border-grey-light pt-2">
+                            {% if order.shipping_address %}
+                                <div class="p-1 w-full flex mb-2 text-sm">
+                                    <div class="w-full lg:w-auto flex flex-col justify-center leading-normal">
+                                        <span class="block font-bold">Shipping Address</span>
+                                        <span>{{ order.shipping_address.full_name }}, {{ order.shipping_address.formatted_alt }}</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if order.shipping_method %}
+                                <div class="p-1 w-full flex mb-2 text-sm">
+                                    <div class="w-full lg:w-auto flex flex-col justify-center leading-normal">
+                                        <span class="block font-bold">Shipping Method</span>
+                                        <span class="block"><span>{{ order.shipping_method.name }}</span> - <span>{{ order.shipping_price }}</span></span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if order.billing_address %}
+                                <div class="p-1 w-full flex mb-2 text-sm">
+                                    <div class="w-full lg:w-auto flex flex-col justify-center leading-normal">
+                                        <span class="block font-bold">Billing Address</span>
+                                        <span>{{ order.billing_address.full_name }}, {{ order.billing_address.formatted_alt }}</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="w-full border-t border-grey-light p-1 pt-4">
+                        <table class="w-full mb-3">
+                            <tr class="pb-1">
+                                <td class="pb-1 text-right w-2/3">Subtotal:</td>
+                                <td class="pb-1 text-right">{{ order.subtotal_price }}</td>
+                            </tr>
+                            {% if order.hasShipping() %}
+                                <tr>
+                                    <td class="pb-1 text-right w-2/3">Shipping:</td>
+                                    <td class="pb-1 text-right">{{ order.shipping_price }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if order.hasDiscount() %}
+                                <tr>
+                                    <td class="pb-1 text-right w-2/3">Discount:</td>
+                                    <td class="pb-1 text-right">- {{ order.discount_price }}</td>
+                                </tr>
+                            {% endif %}
+                        </table>
+                        <div class="border-t border-grey-light mt-1 mb-1">
+                            <table class="w-full">
+                                <tr>
+                                    <td class="font-bold pt-4 text-right w-2/3">Total:</td>
+                                    <td class="font-bold pt-4 text-right">{{ order.total_price }}</td>
+                                </tr>
+                                {% if order.hasTax() %}
+                                    <tr class="text-grey-darker text-xs">
+                                        <td class="pt-1 text-right" colspan="2">Including taxes of <span>{{ order.total_tax_price }}</span></td>
+                                    </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

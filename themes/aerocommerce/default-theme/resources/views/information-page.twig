@@ -1,0 +1,11 @@
+{% if '/contact' in app.request.uri %}
+	{% include "contact" %}
+{%  endif %}
+
+{% if '/thank-you' in app.request.uri %}
+	{% include "thank-you" %}
+{%  endif %}
+
+{% if '/privacy-policy' in app.request.uri %}
+	{% include "generic" %}
+{%  endif %}

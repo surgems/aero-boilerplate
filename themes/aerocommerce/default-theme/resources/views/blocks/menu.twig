@@ -1,0 +1,12 @@
+<div class="flex items-center justify-between cursor-pointer lg:cursor-auto text-primary hover:text-primary-dark lg:hover:text-primary accordion-toggle">
+    <span class="font-semibold lg:text-sm">{{ menu.name }}</span>
+    <svg class="fill-current w-2 h-2 ml-1 accordion-caret-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 255 255"><polygon points="63.8,255 191.2,127.5 63.8,0"></polygon></svg>
+    <svg class="fill-current w-2 h-2 ml-1 accordion-caret-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 255 255"><polygon points="0,63.75 127.5,191.25 255,63.75"></polygon></svg>
+</div>
+<div class="accordion-content">
+    <ul class="list-reset lg:text-xs">
+        {% for item in menu.items %}
+            <li>{{ item | raw }}</li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,0 +1,13 @@
+<div class="pagination">
+    <h2><span>Page {{ posts.currentPage }} of {{ posts.lastPage }}</span></h2>
+
+    <div>
+        {% if posts.lastPage > 1 %}
+            <div>
+                {% for i in 1..posts.lastPage %}
+                    <a href="?page={{i}}"><h2 {% if queryParams['page'] == i %} class="active" {% endif %}>{{i}}</h2></a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

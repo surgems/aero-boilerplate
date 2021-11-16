@@ -1,0 +1,41 @@
+{% if image.href %}<a href="{{ image.href }}"{% if image.alt is not empty %} title="{{ image.alt }}"{% endif %}{% if image.target_blank %} target="_blank" rel="noopener{% if image.nofollow %} nofollow{% endif %}"{% elseif image.nofollow %} rel="nofollow"{% endif %}>{% endif %}
+{% if image.file %}
+    <picture>
+        {% set width = image.width / 2 | round %}
+        {% set height = image.height / 2 | round %}
+        <source srcset="{{ image_factory(width, height, image.file).webp() }} 1x,{{ image_factory(width, height, image.file).webp().retina() }} 2x" type="image/webp">
+        <source srcset="{{ image_factory(width, height, image.file).retina() }} 2x">
+        <img src="{{ image_factory(width, height, image.file) }}" class="w-full block" alt="{{ alt | default(image.alt) }}">
+    </picture>
+{% else %}
+    <picture>
+        {% if image.small_file %}
+            {% set file = image.small_file %}
+            {% set width = sizes.small.width | default(image.small_width / 2) | round %}
+            {% set height = sizes.small.height | default(image.small_height / 2) | round %}
+            <source media="(max-width: 559px)" srcset="{{ image_factory(width, height, file).webp() }} 1x,{{ image_factory(width, height, file).webp().retina() }} 2x" type="image/webp">
+            <source media="(max-width: 559px)" srcset="{{ image_factory(width, height, file) }} 1x,{{ image_factory(width, height, file).retina() }} 2x">
+        {% endif %}
+        {% if image.medium_file %}
+            {% set file = image.medium_file %}
+            {% set width = sizes.medium.width | default(image.medium_width / 2) | round %}
+            {% set height = sizes.medium.height | default(image.medium_height / 2) | round %}
+            <source media="(min-width: 560px) and (max-width: 991px)"
+                    srcset="{{ image_factory(width, height, file).webp() }} 1x,{{ image_factory(width, height, file).webp().retina() }} 2x" type="image/webp">
+            <source media="(min-width: 560px) and (max-width: 991px)"
+                    srcset="{{ image_factory(width, height, file) }} 1x,{{ image_factory(width, height, file).retina() }} 2x">
+        {% endif %}
+        {% if image.large_file %}
+            {% set file = image.large_file %}
+            {% set width = sizes.large.width | default(image.large_width / 2) | round %}
+            {% set height = sizes.large.height | default(image.large_height / 2) | round %}
+            <source media="{% if image.medium_file or image.small_file %}(min-width: 992px){% else %}all{% endif %}" srcset="{{ image_factory(width, height, file).webp() }} 1x,{{ image_factory(width, height, file).webp().retina() }} 2x" type="image/webp">
+            <source media="{% if image.medium_file or image.small_file %}(min-width: 992px){% else %}all{% endif %}" srcset="{{ image_factory(width, height, file) }} 1x,{{ image_factory(width, height, file).retina() }} 2x">
+        {% endif %}
+        {% if file %}
+            <source srcset="{{ image_factory(width, height, file).webp() }} 1x,{{ image_factory(width, height, file).webp().retina() }} 2x" type="image/webp">
+            <img src="{{ image_factory(width, height, file) }}" srcset="{{ image_factory(width, height, file).retina() }} 2x" class="w-full block" alt="{{ alt | default(image.alt) }}">
+        {% endif %}
+    </picture>
+{% endif %}
+{% if image.href %}</a>{% endif %}

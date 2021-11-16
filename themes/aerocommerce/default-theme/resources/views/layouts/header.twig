@@ -1,0 +1,34 @@
+<header>
+</header>
+
+{# {% js %}
+    <script>
+        $(function () {
+            $('#sidebar-open').click(function (e) {
+                $('#sidebar').addClass('show');
+                $('html,body').addClass('sidebar-open');
+                e.preventDefault();
+            });
+            $('#search-open').click(function (e) {
+                $('#sidebar-open').click();
+                $('#search').focus();
+                e.preventDefault();
+            });
+            $('#sidebar-close').click(function (e) {
+                $('#sidebar').removeClass('show');
+                $('html,body').removeClass('sidebar-open');
+                e.preventDefault();
+            });
+            $('#sidebar .megamenu-group > .megamenu-sub').click(function (e) {
+                if ($('#sidebar-close').is(':visible')) {
+                    $(this).siblings('.megamenu-dropdown').addClass('active');
+                    e.preventDefault();
+                }
+            });
+            $('#sidebar .megamenu-group a.megamenu-back').click(function (e) {
+                $(this).parent().removeClass('active');
+                e.preventDefault();
+            });
+        });
+    </script>
+{% endjs %} #}

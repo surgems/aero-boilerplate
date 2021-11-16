@@ -1,0 +1,7 @@
+{% if session('message') %}
+    <div class="session-message">
+        <p class="{% if session('is_error') %}border-red text-red{% else %}border-green text-green{% endif %}" role="alert">
+            <strong>{{ session('message') }}</strong>
+        </p>
+    </div>
+{% endif %}

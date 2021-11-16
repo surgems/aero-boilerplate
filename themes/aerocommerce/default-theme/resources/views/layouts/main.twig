@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ locale() }}">
+    <head>
+        <title>{{ page_title() }}</title>
+        <link rel="icon" href="">
+        {% block meta %}{% include "layouts.partials.meta" %}{% endblock %}
+        <link rel="dns-prefetch" href="{{ asset('') }}">
+        {{ theme_css('css/main.css') }}
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+    </head>
+
+    <body>
+        {% block main %}
+
+            {% block header %}{% include "layouts.header" %}{% endblock %}
+            {% include "layouts.partials.breadcrumb" with {breadcrumb: breadcrumb()} %}
+            
+            {% content %}
+
+            {% block footer %}{% include "layouts.footer" %}{% endblock %}
+
+        {% endblock %}
+
+        <script src="{{ theme_asset('js/jquery.slim.min.js') }}"></script>
+        <script src="{{ asset(theme_mix('js/main.js')) }}" defer></script>
+        <script src="{{ theme_asset('js/lazysizes.min.js') }}" defer></script>
+    </body>
+</html>

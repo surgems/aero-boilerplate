@@ -1,0 +1,25 @@
+{% if breadcrumb | length %}
+    <div class="breadcrumb">
+        <ul>
+            <li class="{% if breadcrumb | length != 1 %}hidden lg:{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 255 255">
+                    <polygon points="191.2,0 63.8,127.5 191.2,255 "/>
+                </svg>
+                <a href="/">Home</a>
+            </li>
+            
+            {% for i, crumb in breadcrumb %}
+                <li class="{% if i != breadcrumb | length - 2 %}hidden lg:{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 255 255">
+                        <polygon points="191.2,0 63.8,127.5 191.2,255 "/>
+                    </svg>
+                    {% if loop.last %}
+                        <span>{{ crumb.name }}</span>
+                    {% else %}
+                        <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

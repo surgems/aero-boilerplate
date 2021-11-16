@@ -1,0 +1,274 @@
+{% layout "main" %}
+
+<div class="flex flex-wrap flex-col w-full max-w-3xl mx-auto p-4 pb-8">
+    <div class="w-full text-center">
+        <h1 class="text-primary text-3xl mt-3 mb-6">Cart</h1>
+    </div>
+    {% include "layouts.partials.message" %}
+    {% if items is empty %}
+        <div class="relative rounded-lg shadow-lg lg:shadow-none w-full overflow-hidden p-6 bg-white border border-grey-light text-center">
+            <span class="font-bold">Your cart is empty.</span>
+        </div>
+    {% else %}
+        <div class="flex flex-wrap">
+            <div class="w-full lg:w-2/3 mb-6 lg:mb-0">
+                <div class="relative rounded-lg shadow-lg lg:shadow-none w-full overflow-hidden p-6 bg-white border border-grey-light">
+                    <div class="w-full border-grey-light border-b mb-4">
+                        <h2 class="text-xl mb-4 text-primary leading-normal">{{ count }} {{ trans_choice('Item|Items', count) }}</h2>
+                    </div>
+                    {% for item in items if item.isVisible() %}
+                        <div class="w-full flex flex-wrap mb-4 pb-4 border-b border-grey-light">
+                            <div class="w-20 lg:w-24 pr-4 lg:pr-2 flex items-center text-xs">
+                                {% if item.url %}
+                                    <a href="{{ item.url }}">
+                                {% endif %}
+                                {% if item.image %}
+                                    <picture>
+                                        <source srcset="{{ image_factory(108, 144, item.image.file).webp() }} 1x,{{ image_factory(108, 144, item.image.file).webp().retina() }} 2x"
+                                                type="image/webp">
+                                        <img src="{{ image_factory(108, 144, item.image.file) }}"
+                                             srcset="{{ image_factory(108, 144, item.image.file).retina() }} 2x"
+                                             alt="{{ item.image.alt | default(item.name) }}" class="block w-full rounded">
+                                    </picture>
+                                {% else %}
+                                    <img src="{{ theme_asset('no-image.svg') }}" alt="{{ item.name }}" class="block w-full rounded">
+                                {% endif %}
+                                {% if item.url %}
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 flex flex-wrap relative">
+                                <div class="w-full lg:w-5/6 py-2 lg:p-4">
+                                    {% if item.url %}
+                                        <a href="{{ item.url }}" class="text-primary hover:text-primary-dark no-underline lg:hover:underline inline-block">
+                                    {% endif %}
+                                    {{ item.name }}
+                                    {% if item.url %}
+                                        </a>
+                                    {% endif %}
+                                    {% if item.options | length %}
+                                        <div class="text-grey-darker text-sm mt-2">
+                                            {% for option in item.options %}
+                                                <div class="mb-px">
+                                                    {% set value = option.display_value | default(option.value) %}
+                                                    {% if value is empty %}
+                                                        <span class="font-bold">{{ option.name }}</span>
+                                                    {% else %}
+                                                        <span class="font-bold">{{ option.name }}:</span> {{ value }}
+                                                    {% endif %}
+                                                    {% if option.hasPrice() %}
+                                                        ({{ option.price }})
+                                                    {% endif %}
+                                                    {% if option.hasFiles() %}
+                                                        ({{ trans_choice(':count attached file|:count attached files', option.fileCount()) }})
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if item.hasSubItems() %}
+                                        <div class="text-grey-darker text-sm mt-2">
+                                            {% for sub_item in item.subItems if sub_item.isHidden() %}
+                                                <div class="{% if errors.has(sub_item.id) or sub_item.hasError() %}text-red{% endif %}">
+                                                    {{ sub_item.quantity }} x {{ sub_item.name }}
+                                                    {% if not sub_item.isFree() %}
+                                                        &ndash; {{ sub_item.subtotal }}
+                                                    {% endif %}
+                                                    {% if errors.has(sub_item.id) %}
+                                                        <span class="block w-full bg-white border border-red text-red font-bold my-2 p-2 rounded-lg text-center" role="alert">{{ errors.first(sub_item.id) }}</span>
+                                                    {% elseif sub_item.hasError() %}
+                                                        <span class="block w-full bg-white border border-red text-red font-bold my-2 p-2 rounded-lg text-center" role="alert">{{ sub_item.error }}</span>
+                                                    {% endif %}
+                                                    {% if sub_item.canBeRemoved() %}
+                                                        <form class="inline-block ml-1" action="{{ route('cart.update') }}" method="post">
+                                                            {{ csrf_field() }}
+                                                            {{ method_field('put') }}
+                                                            <input type="hidden" name="cart_item_id" value="{{ sub_item.id }}">
+                                                            <input type="hidden" name="quantity" value="0">
+                                                            (<button type="submit" class="text-primary hover:text-primary-dark no-underline lg:hover:underline inline-block outline-none focus:outline-none mt-3 lg:mt-0 text-sm">Remove</button>)
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if item.hasFiles() %}
+                                        {% for file in item.files %}
+                                            {% if file.hasExtension(['jpg', 'jpeg', 'png']) %}
+                                                <img class="mt-1 mr-1" src="{{ image_factory(50, 50, file.path).contain() }}">
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if errors.has(item.id) %}
+                                        <span class="block w-full bg-white border-2 border-red text-red font-bold mt-3 p-3 rounded-lg text-center lg:shadow-md" role="alert">{{ errors.first(item.id) }}</span>
+                                    {% elseif item.hasError() %}
+                                        <span class="block w-full bg-white border-2 border-red text-red font-bold mt-3 p-3 rounded-lg text-center lg:shadow-md" role="alert">{{ item.error }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="w-1/2 lg:w-5/6 lg:p-4 lg:pt-1 pt-1 flex flex-wrap items-center">
+                                    {% if item.canBeChanged() %}
+                                        <form action="{{ route('cart.update') }}" method="post" class="mr-4">
+                                            {{ csrf_field() }}
+                                            {{ method_field('put') }}
+                                            <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+                                            <div class="quantity flex">
+                                                <button class="flex items-center justify-center btn-minus inline-block bg-grey text-white font-bold w-8 h-8 rounded-full outline-none focus:outline-none hover:bg-grey-dark cursor-pointer transition-fast" type="button">
+                                                    -
+                                                </button>
+                                                <input type="text"
+                                                       aria-label="Quantity for {{ item.name }}"
+                                                       class="appearance-none outline-none w-8 lg:w-12 text-center"
+                                                       name="quantity" pattern="[0-9]*" value="{{ item.quantity }}">
+                                                <button class="flex items-center justify-center btn-plus inline-block bg-grey text-white font-bold w-8 h-8 rounded-full outline-none focus:outline-none hover:bg-grey-dark cursor-pointer transition-fast" type="button">
+                                                    +
+                                                </button>
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        <div class="text-grey-darker text-sm mr-4"><span class="font-bold">Quantity:</span> {{ item.quantity }}</div>
+                                    {% endif %}
+                                    {% if item.canBeRemoved() %}
+                                        <form action="{{ route('cart.update') }}" method="post">
+                                            {{ csrf_field() }}
+                                            {{ method_field('put') }}
+                                            <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+                                            <input type="hidden" name="quantity" value="0">
+                                            <button type="submit" class="text-primary hover:text-primary-dark no-underline lg:hover:underline inline-block outline-none focus:outline-none mt-3 lg:mt-0 text-sm">Remove</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                                {% if not item.isFree() %}
+                                    <div class="w-1/2 lg:w-1/6 text-right lg:py-4 flex flex-col justify-end items-end lg:absolute pin-t pin-r">
+                                        <span class="block {% if item.isReduced() %}text-red{% endif %}">{{ item.subtotal }}</span>
+                                        {% if item.isReduced() %}
+                                            <span class="text-xs line-through pt-1">{{ item.fullSubtotal }}</span>
+                                        {% endif %}
+                                        {% if item.quantity > 1 %}
+                                            <span class="text-xs text-grey-darker pt-1">{{ item.price }} each</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div>
+                        <a href="{{ route('home') }}" class="text-primary hover:text-primary-dark text-sm no-underline inline-block">« <span class="lg:hover:underline">Continue Shopping</span></a>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/3 lg:pl-4">
+                <div class="relative rounded-lg shadow-lg lg:shadow-none w-full overflow-hidden p-6 bg-white border border-grey-light">
+                    <div class="w-full border-grey-light border-b mb-4">
+                        <h2 class="text-xl mb-4 text-primary leading-normal">Summary</h2>
+                    </div>
+                    <div class="w-full">
+                        <table class="w-full mb-3">
+                            <tr class="pb-1">
+                                <td class="pb-1 w-2/3">{{ count }} {{ trans_choice('item|items', count) }}:</td>
+                                <td class="pb-1 text-right">{{ subtotal }}</td>
+                            </tr>
+                            {% for discount in discounts %}
+                                <tr class="pb-1">
+                                    <td class="pb-1 w-2/3">Discount ({{ discount.code }}):
+                                        <form action="{{ route('cart.discount') }}" method="post">
+                                            {{ csrf_field() }}
+                                            {{ method_field('delete') }}
+                                            <input type="hidden" name="key" value="{{ discount.key }}">
+                                            <button type="submit" class="text-primary hover:text-primary-dark no-underline lg:hover:underline inline-block outline-none focus:outline-none mt-3 lg:mt-0 text-sm">Remove</button>
+                                        </form>
+                                    </td>
+                                    <td class="pb-1 text-right">- {{ discount.price }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% if shipping %}
+                                <tr>
+                                    <td class="pb-1 w-2/3">Shipping:</td>
+                                    <td class="pb-1 text-right">{{ shipping }}</td>
+                                </tr>
+                            {% endif %}
+                            {% for voucher in vouchers %}
+                                <tr class="pb-1">
+                                    <td class="pb-1 w-2/3">Voucher ({{ voucher.code }}):
+                                        <form action="{{ route('cart.discount') }}" method="post">
+                                            {{ csrf_field() }}
+                                            {{ method_field('delete') }}
+                                            <input type="hidden" name="key" value="{{ voucher.key }}">
+                                            <button type="submit" class="text-primary hover:text-primary-dark no-underline lg:hover:underline inline-block outline-none focus:outline-none mt-3 lg:mt-0 text-sm">Remove</button>
+                                        </form>
+                                    </td>
+                                    <td class="pb-1 text-right">- {{ voucher.price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                        <table class="w-full pt-2 border-t border-grey-light mt-1">
+                            <tr>
+                                <td class="font-bold pt-4 w-2/3">Total{% if shippable and not shipping %} <span class="font-normal text-sm">(excluding shipping)</span>{% endif %}:</td>
+                                <td class="font-bold pt-4 text-right">{{ total }}</td>
+                            </tr>
+                            {% if total.hasTax() %}
+                                <tr class="text-grey-darker text-xs">
+                                    <td class="pt-1 text-right" colspan="2">Including taxes of {{ total.tax }}</td>
+                                </tr>
+                            {% endif %}
+                        </table>
+                        <div class="mt-4 pt-4 border-grey-light border-t">
+                            {% if not errors.has('code') %}
+                                <a href="#" id="discount-code-show" class="text-primary hover:text-primary-dark text-sm no-underline inline-block lg:hover:underline">Discount or Voucher Code?</a>
+                            {% endif %}
+                            <form id="discount-code-form" action="{{ route('cart.discount') }}" method="post" class="{% if errors.has('code') %}flex flex-wrap{% else %}hidden{% endif %}">
+                                {{ csrf_field() }}
+                                <div class="w-2/3">
+                                    <label for="discount-code" class="text-primary-dark text-sm font-semibold block pb-2">Code</label>
+                                    {% if errors.has('code') %}
+                                        <span class="block w-full bg-white border-2 border-red text-red font-bold mb-2 p-3 rounded-lg text-center lg:shadow-md" role="alert">
+                                                <strong>{{ errors.first('code') }}</strong>
+                                            </span>
+                                    {% endif %}
+                                    <input id="discount-code" type="text" name="code"
+                                           class="border hover:border-grey-dark focus:border-primary focus:border-2 rounded outline-none focus:outline-none p-3 m-px focus:m-0 w-full"
+                                           autocomplete="off" required>
+                                </div>
+                                <div class="w-1/3 flex flex-col pl-2">
+                                    <label class="text-sm font-semibold block pb-2">&nbsp;</label>
+                                    <button type="submit" class="mt-px outline-none focus:outline-none inline-block no-underline border-2 border-primary bg-primary text-sm text-white font-bold py-3 px-4 rounded-full outline-none hover:border-primary-dark hover:bg-primary-dark cursor-pointer w-full text-center transition-fast">Apply</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="w-full flex flex-col justify-center border-grey-light border-t mt-4 pt-6">
+                        <a href="{{ route('checkout') }}" class="inline-block no-underline border-2 border-primary bg-primary text-white font-bold py-4 px-8 rounded-full outline-none hover:border-primary-dark hover:bg-primary-dark cursor-pointer w-full text-center transition-fast">
+                            Continue to Checkout
+                        </a>
+                        <div class="mt-2 relative z-0" data-content="express-payment-buttons"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% js %}
+    <script>
+        $(function () {
+            $('.btn-minus').on('click', function (e) {
+                e.preventDefault();
+                var $input = $(this).closest('div').find('input');
+                var value = parseInt($input.val());
+                $input.val(value > 1 ? value - 1 : 0).trigger('keyup');
+            });
+            $('.btn-plus').on('click', function (e) {
+                e.preventDefault();
+                var $input = $(this).closest('div').find('input');
+                $input.val(parseInt($input.val()) + 1).trigger('keyup');
+            });
+            $('.quantity input').delayChange(400).change(function () {
+                $(this).closest('form').submit();
+            });
+            $('#discount-code-show').on('click', function (e) {
+                e.preventDefault();
+                $('#discount-code-form').addClass('flex flex-wrap').removeClass('hidden');
+                $('#discount-code').focus();
+                $(this).remove();
+            });
+        });
+    </script>
+{% endjs %}

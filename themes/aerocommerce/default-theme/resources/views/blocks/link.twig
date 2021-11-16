@@ -1,0 +1,1 @@
+<a href="{{ link.href }}" class="text-primary hover:text-primary-dark no-underline lg:hover:underline"{% if link.target_blank %} target="_blank" rel="noopener{% if link.nofollow %} nofollow{% endif %}"{% elseif link.nofollow %} rel="nofollow"{% endif %}>{{ link.name }}</a>

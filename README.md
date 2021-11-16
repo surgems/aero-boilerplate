@@ -12,4 +12,4 @@ connect db
 
 php artisan migrate
 
-<a href="./auth.json" download>Click to download dump</a>
+[Click to download dump](/aero_boilerplate.dump.zip)

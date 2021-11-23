@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html lang="{{ locale() }}">
     <head>
-        <title>{{ page_title() }}</title>
-        <link rel="icon" href="">
+        {# SEO #}
         {% block meta %}{% include "layouts.partials.meta" %}{% endblock %}
+
+        {# FAVICON & TITLE #}
+        <title>{{ page_title() }}</title>
+        <link rel="icon" href="/favicon.png">
+
+        {# FONTS #}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap" rel="stylesheet">
+
+        {# STYLESHEETS & SCRIPTS #}
         <link rel="dns-prefetch" href="{{ asset('') }}">
         {{ theme_css('css/main.css') }}
+
+        {# CAPTCHA #}
         <script src='https://www.google.com/recaptcha/api.js'></script>
     </head>
 
@@ -13,7 +25,7 @@
         {% block main %}
 
             {% block header %}{% include "layouts.header" %}{% endblock %}
-            {% include "layouts.partials.breadcrumb" with {breadcrumb: breadcrumb()} %}
+            {# {% include "layouts.partials.breadcrumb" with {breadcrumb: breadcrumb()} %} #}
             
             {% content %}
 
@@ -23,6 +35,6 @@
 
         <script src="{{ theme_asset('js/jquery.slim.min.js') }}"></script>
         <script src="{{ asset(theme_mix('js/main.js')) }}" defer></script>
-        <script src="{{ theme_asset('js/lazysizes.min.js') }}" defer></script>
+        {# <script src="{{ theme_asset('js/lazysizes.min.js') }}" defer></script> #}
     </body>
 </html>

@@ -1,34 +1,139 @@
 <header>
-</header>
+    <nav id="nav">
+        <div class="inner-nav">
+            <a name="" href="/" class="logo">
+                {{ block_item('globals.logo') }}
+            </a>
+    
+            <div class="desktop-nav">
+                <div id="top-nav" class="top">
+                </div>
+    
+                <div class="bottom">
+                    {% for category in block_items('navigation.categories') %}
+                        <div>
+                            <a>{{ category | raw }}</a>
 
-{# {% js %}
-    <script>
-        $(function () {
-            $('#sidebar-open').click(function (e) {
-                $('#sidebar').addClass('show');
-                $('html,body').addClass('sidebar-open');
-                e.preventDefault();
-            });
-            $('#search-open').click(function (e) {
-                $('#sidebar-open').click();
-                $('#search').focus();
-                e.preventDefault();
-            });
-            $('#sidebar-close').click(function (e) {
-                $('#sidebar').removeClass('show');
-                $('html,body').removeClass('sidebar-open');
-                e.preventDefault();
-            });
-            $('#sidebar .megamenu-group > .megamenu-sub').click(function (e) {
-                if ($('#sidebar-close').is(':visible')) {
-                    $(this).siblings('.megamenu-dropdown').addClass('active');
-                    e.preventDefault();
-                }
-            });
-            $('#sidebar .megamenu-group a.megamenu-back').click(function (e) {
-                $(this).parent().removeClass('active');
-                e.preventDefault();
-            });
-        });
-    </script>
-{% endjs %} #}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="9.887" viewBox="0 0 16 9.887">
+                                <g id="ic_keyboard_arrow_up_48px" transform="translate(28 25.887) rotate(180)">
+                                    <path id="Path_19" data-name="Path 19" d="M13.887,25.887,20,19.773l6.113,6.113L28,24l-8-8-8,8Z" fill="#1f1f1f"/>
+                                </g>
+                            </svg>
+
+                            <div class="dropdown">
+                                <div class="inner-dropdown">
+                                    {% for menu in block_items('navigation.main') %}
+                                            {% if menu.additional('category') == category.additional('category_value') %}
+                                                <div>
+                                                    {{ menu | raw }}
+                                                </div>
+                                            {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+    
+            <div class="mob-nav">
+
+                <a name="Click to call" class="phone" href="tel:">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="39.3" height="39.3" viewBox="0 0 39.3 39.3">
+                        <g id="Group_155" data-name="Group 155" transform="translate(-237 -104.23)">
+                            <g id="ic_local_phone_48px" transform="translate(237 104.23)">
+                            <path id="Path_154" data-name="Path 154" d="M13.915,23.019A32.881,32.881,0,0,0,28.3,37.4l4.8-4.814a2.19,2.19,0,0,1,2.216-.535,24.854,24.854,0,0,0,7.794,1.244A2.176,2.176,0,0,1,45.3,35.475v7.642A2.176,2.176,0,0,1,43.116,45.3,37.113,37.113,0,0,1,6,8.183,2.183,2.183,0,0,1,8.183,6h7.642a2.176,2.176,0,0,1,2.183,2.183,24.854,24.854,0,0,0,1.244,7.794,2.19,2.19,0,0,1-.535,2.216Z" transform="translate(-6 -6)" fill="#e50331"/>
+                            </g>
+                        </g>
+                    </svg>                                      
+                </a>
+            </div>
+        </div>
+    
+        <ul id="mob-menu" class="mob-dropdown main">
+            {% for category in block_items('navigation.categories') %}
+                <div class="menu-accordion-container">
+                    <a>
+                        {{ category | raw }} 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="9.887" height="16" viewBox="0 0 9.887 16">
+                            <g id="ic_keyboard_arrow_up_48px" transform="translate(25.887 -12) rotate(90)">
+                                <path id="Path_19" data-name="Path 19" d="M13.887,25.887,20,19.773l6.113,6.113L28,24l-8-8-8,8Z" fill="#fff"/>
+                            </g>
+                        </svg>
+                    </a>
+
+
+                    <div class="panel">
+                        {% for menu in block_items('navigation.main') %}
+                                {% if menu.additional('category') == category.additional('category_value') %}
+                                    <div class="menu-accordion-container">
+                                        {{ menu | raw }}
+                                    </div>
+                                {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div>
+                <a href="/about">ABOUT</a>
+            </div>
+
+            <div>
+                <a href="/contact">CONTACT</a>
+            </div>
+    
+            <p class="copyright">{{ block_item('globals.copyright-info') }}</p>
+        </ul>
+    </nav>
+
+    <nav id="nav-bottom">
+        <div class="inner-nav">
+            <div class="burger">
+                <div id="nav-icon3">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <div class="search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="47.872" height="49.624" viewBox="0 0 47.872 49.624">
+                    <g id="Group_2766" data-name="Group 2766" transform="matrix(0.777, -0.629, 0.629, 0.777, -1787.31, 381.966)">
+                        <path class="stroke-red" id="Path_129" data-name="Path 129" d="M1646.239,857.726a10.236,10.236,0,1,1-3.36-4.962" transform="translate(-4.263 -4.42)" fill="none" stroke="#505050" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1"/>
+                        <path class="stroke-red" id="Path_130" data-name="Path 130" d="M1630.8,874v6.3a1.789,1.789,0,0,0,3.579,0V870.086a13.872,13.872,0,1,0-3.579.057" fill="none" stroke="#505050" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1"/>
+                    </g>
+                </svg>
+            </div>
+
+            <a href="/account">
+                <div class="account">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32.019" height="39.222" viewBox="0 0 32.019 39.222">
+                        <g id="Group_2768" data-name="Group 2768" transform="translate(-1153 -975)">
+                            <circle id="Ellipse_47" data-name="Ellipse 47" cx="9.084" cy="9.084" r="9.084" transform="translate(1159.704 975.5)" fill="none" stroke="#505050" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1"/>
+                            <path id="Path_133" data-name="Path 133" d="M1184.519,1030.68c0,7.831-31.019,7.831-31.019,0s6.944-14.18,15.509-14.18S1184.519,1022.849,1184.519,1030.68Z" transform="translate(0 -22.832)" fill="none" stroke="#505050" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1"/>
+                        </g>
+                    </svg>
+                </div>
+            </a>
+
+            <a href="/cart">
+                <div class="cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36.41" height="35.207" viewBox="0 0 36.41 35.207">
+                        <g id="Group_2767" data-name="Group 2767" transform="translate(-1310.5 -972.5)">
+                            <path id="Path_131" data-name="Path 131" d="M1311,973h3.334a2.806,2.806,0,0,1,2.747,2.231l3.626,17.291a2.806,2.806,0,0,0,2.747,2.231H1341.2a2.807,2.807,0,0,0,2.732-2.163l2.4-10.174a2.807,2.807,0,0,0-2.732-3.45h-18.91" fill="none" stroke="#505050" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1"/>
+                            <path id="Path_132" data-name="Path 132" d="M1357.561,1037.176h-20.94a2.807,2.807,0,0,1-1.985-.822h0a2.807,2.807,0,0,1,0-3.969l.788-.788" transform="translate(-14.81 -38.038)" fill="none" stroke="#505050" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1"/>
+                            <circle id="Ellipse_45" data-name="Ellipse 45" cx="2.807" cy="2.807" r="2.807" transform="translate(1319.946 1001.594)" fill="none" stroke="#505050" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1"/>
+                            <circle id="Ellipse_46" data-name="Ellipse 46" cx="2.807" cy="2.807" r="2.807" transform="translate(1337.138 1001.594)" fill="none" stroke="#505050" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1"/>
+                        </g>
+                    </svg>
+
+                    <div class="quantity">
+                        <p>0</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </nav>
+</header>

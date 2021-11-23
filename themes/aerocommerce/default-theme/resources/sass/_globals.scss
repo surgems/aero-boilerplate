@@ -1,3 +1,146 @@
-body {
-    background-color: #fff;
+@use 'sass:math';
+
+@mixin flex($align-items: none, $justify-content: none, $flex-wrap: none, $flex-direction: none) {
+    display: flex;
+    align-items: $align-items;
+    justify-content: $justify-content;
+    flex-wrap: $flex-wrap;
+    flex-direction: $flex-direction;
+}
+@mixin sans($font-weight: 400, $font-size: 16px, $color: #000) {
+    font : {
+        family: 'Open Sans', sans-serif;
+        weight: $font-weight;
+        size: $font-size;
+    }
+}
+
+$landscape-mobile: "only screen and (max-width: 770px) and (min-width: 500px) and (max-height: 400px)";
+$portrait-tablet: "only screen and (max-width: 768px) and (min-width: 500px) and (max-height: 1024px)";
+$landscape-tablet: "only screen and (max-height: 768px) and (max-width: 1024px) and (min-width: 500px)"; // also landscape mobile
+$laptop: "only screen and (min-width: 1025px) and (max-width: 1600px)";
+$desktop: "only screen and (min-width: 1600px)";
+$mobNavHeight: 70px;
+$tabletNavHeight: 100px;
+$desktopNavHeight: 130px;
+$bigMobPaddingX: 36px;
+$smallMobPaddingX: 20px;
+$tabletPaddingX: 10vw;
+$smallDesktopPaddingX: 45px;
+
+* {
+    // border: 1px solid red; // for testing
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+    ::selection {
+        color: #000;
+    }
+
+    body { 
+        padding-top: $mobNavHeight;
+
+        &.no-scroll {
+            overflow-y: hidden;
+        }
+
+        main {
+            min-height: 75vh;
+            z-index: -1;
+        }
+
+        /* FORMS */
+
+        form {
+            input {
+                outline: 0;
+            }
+        }
+
+        /* BUTTONS */
+
+        .button {
+            height: 40px;
+            width: 150px;
+        }
+
+        /* FLEX */
+
+        .flex {
+            @include flex();
+        }
+
+        /* ACCORDION */
+
+        .accordion-container {
+            width: 100%;
+        }
+
+        .panel, .hide-panel {
+            display: none;
+        }
+
+        /* OWL CAROUSEL */
+
+        .owl-stage {
+            cursor: grab;
+
+            &:active {
+                cursor: grabbing;
+            }
+        }
+    }
+
+    a {
+        width: fit-content;
+        height: fit-content;
+        text-decoration: none;
+    }
+
+    picture {
+        font-size: 0;
+        line-height: 0;
+
+        img {
+            display: block;
+        }
+    }
+}
+
+/* LANDSCAPE MOBILE */
+
+// @media #{$landscape-mobile} {
+//     * {
+//         body {
+//         }
+//     }
+// }
+
+/* TABLET */
+
+@media #{$portrait-tablet} {
+    * {
+        body {
+            padding-top: $tabletNavHeight;
+        }
+    }
+}
+
+@media #{$landscape-tablet}, #{$laptop}, #{$desktop} {
+    * {
+        body {
+            padding-top: $tabletNavHeight;
+        }
+    }
+}
+
+/* DESKTOP */
+
+@media #{$laptop}, #{$desktop} {
+    * {
+        body {
+            padding-top: $desktopNavHeight;
+        }
+    }
 }
